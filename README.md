@@ -3,20 +3,21 @@ Este repositorio tiene como objetivo usar scripts y liberías de Python para pod
 
 Dependencias requeridas:
 
-os 
-pathlib
-logging
-sys,getpass
-argparse
-csv
-json
-subprocess
-datetime
-whois
-requests
-time
-re
-requests
-dnspython
+* os 
+* pathlib
+* logging
+* sys
+* getpass
+* argparse
+* csv
+* json
+* subprocess
+* datetime
+* whois
+* requests
+* time
+* re
+* requests
+* dnspython
 
 
