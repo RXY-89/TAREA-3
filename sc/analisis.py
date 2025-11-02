@@ -7,8 +7,7 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 logger = logging.getLogger("integrador")
 
-AUTHORIZED = os.getenv("FOOTPRINT_AUTH", "0") == "1"
-DEFAULT_USER_AGENT = "FootprintOSINT/1.0 (+https://example.org/)"
+DEFAULT_USER_AGENT = "FootprintOSINT/1.0 (+https://fillward.pythonanywhere.com/)"
 
 def timestamp_now():
     return datetime.datetime.utcnow().isoformat() + "Z"
@@ -96,7 +95,8 @@ def run_nmap(target, ports="1-1024", additional_args=None, output_dir="output", 
     safe_target = target.replace("/", "_").replace(":", "_").replace(".", "_")
     outfile = outdir / f"nmap_{safe_target}.txt"
     jsonfile = outdir / f"nmap_{safe_target}.json"
-    cmd = ["nmap", "-sV", "-Pn", "-p", ports] + additional_args + [target]
+    nmap_path = r"C:\Program Files (x86)\Nmap\nmap.exe"
+    cmd = [nmap_path, "-sV", "-Pn", "-p", ports] + additional_args + [target]
     logger.info("Running nmap: " + " ".join(cmd))
     try:
         proc = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
@@ -127,7 +127,7 @@ def run_nmap(target, ports="1-1024", additional_args=None, output_dir="output", 
 
 def save_json(obj, path):
     with open(path, "w", encoding="utf-8") as f:
-        json.dump(obj, f, indent=2, ensure_ascii=False)
+            json.dump(obj, f, indent=2, ensure_ascii=False, default=str)
     logger.info(f"Wrote JSON to {path}")
 
 def checar_dominio(d):
@@ -249,7 +249,18 @@ def consultar_dns(dominio, tipos=None, timeout=3, verbose=False):
             if rtype == 'MX':
                 resultados[rtype] = [f"{r.preference} {r.exchange}" for r in respuestas]
             elif rtype == 'TXT':
-                resultados[rtype] = ["".join(r.strings).decode('utf-8') if hasattr(r, 'strings') else str(r) for r in respuestas]
+                resultados[rtype] = []
+                for r in respuestas:
+                    if hasattr(r, 'strings'):
+                        txt_strings = []
+                        for s in r.strings:
+                            if isinstance(s, bytes):
+                                txt_strings.append(s.decode('utf-8', errors='replace'))
+                            else:
+                                txt_strings.append(str(s))
+                        resultados[rtype].append("".join(txt_strings))
+                    else:
+                        resultados[rtype].append(str(r))
             else:
                 resultados[rtype] = [str(rdata) for rdata in respuestas]
         except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer, dns.resolver.NoNameservers) as e:
@@ -292,6 +303,8 @@ def evaluar_dominio(dominio, verbose=False):
         "whois": whois_resultados
     }
 
+    return resultado
+
 def analizar_dominio(dominio, api_key, outdir, http_timeout=8, nmap_ports="1-1024", nmap_args=[], run_active=False):
     if not checar_dominio(dominio):
         logger.warning(f"Dominio inválido: {dominio}")
@@ -308,7 +321,7 @@ def analizar_dominio(dominio, api_key, outdir, http_timeout=8, nmap_ports="1-102
         res_http = http_get(dominio, scheme="http", timeout=http_timeout)
         resultado["http"].append(res_http)
 
-    if run_active and AUTHORIZED:
+    if run_active:
         resultado["nmap"] = run_nmap(dominio, ports=nmap_ports, additional_args=nmap_args, output_dir=str(outdir))
 
     nombre = dominio.replace(".", "_")
