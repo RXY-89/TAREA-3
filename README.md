@@ -24,7 +24,7 @@ Dependencias requeridas:
 
 ## REQUIERE TENER UNA API KEY DE SHODAN LA CUAL PUEDA PROPORCIONAR.
 
-# ¿Cómo manejar al apartado de actividades activas? 
+# ¿Cómo maneja el código el apartado de actividades activas? 
 
-Por defecto, el código **JAMÁS** va a ejecutar la función activa (escaneo con nmap para ver puertos abiertos) sin la confirmación explícita del usuario ejecutándolo, así asegurando el no ejecutarse de forma accidental.
+Por defecto, el código **JAMÁS** va a ejecutar la función activa (escaneo con nmap para ver puertos abiertos) sin la confirmación explícita del usuario ejecutándolo, así asegurando el no ejecutarse de forma accidental, la función encargada de analizar el dominio (analizar_dominio) tiene un parámetro booleano la cual por defecto está en False y es la que determina si ocurre el bloque activo.
 
