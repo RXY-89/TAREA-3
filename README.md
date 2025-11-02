@@ -24,5 +24,7 @@ Dependencias requeridas:
 
 ## REQUIERE TENER UNA API KEY DE SHODAN LA CUAL PUEDA PROPORCIONAR.
 
+# ¿Cómo manejar al apartado de actividades activas? 
 
+Por defecto, el código **JAMÁS** va a ejecutar la función activa (escaneo con nmap para ver puertos abiertos) sin la confirmación explícita del usuario ejecutándolo, así asegurando el no ejecutarse de forma accidental.
 
